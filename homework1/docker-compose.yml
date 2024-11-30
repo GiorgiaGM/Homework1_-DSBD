@@ -1,0 +1,46 @@
+version: '3.7'  
+
+services:
+
+  # Servizio per il server gRPC
+  grpc-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server  
+    container_name: grpc-server
+    ports:
+      - "50051:50051"
+    environment:
+      - MYSQL_HOST=host.docker.internal
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=db
+      - MYSQL_PORT=3306
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
+
+  # Servizio per il Data Collector
+  data-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.data_collector  
+    container_name: data-collector
+    environment:
+      - MYSQL_HOST=host.docker.internal
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=db
+      - MYSQL_PORT=3306
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
+    restart: always
+    
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
